@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#efe6da" />
+  <meta name="description" content="Сунатилла & Севара — свадебное приглашение" />
+  <title>Сунатилла & Севара</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Marck+Script&family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f4ebe0;
+      --ink: #2f2924;
+      --muted: #7a6e63;
+      --bronze: #9a7a52;
+      --bronze-deep: #6e5336;
+      --seal: #7a3d32;
+      --maroon: #6b2a2e;
+      --cream: #fbf7f1;
+      --max: 430px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      background: #d8c9b6;
+      color: var(--ink);
+      min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body.is-locked, body.modal-open { overflow: hidden; height: 100dvh; }
+
+    .shell {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      min-height: 100dvh;
+      position: relative;
+      overflow: clip;
+      background: #fcf9f5;
+      perspective: 1400px;
+    }
+
+    /* LANG */
+    .lang {
+      position: fixed;
+      top: max(0.8rem, env(safe-area-inset-top));
+      right: max(0.8rem, env(safe-area-inset-right));
+      z-index: 90;
+      display: flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(255, 248, 240, 0.88);
+      border: 1px solid rgba(143, 111, 74, 0.25);
+      backdrop-filter: blur(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s var(--ease);
+    }
+    body.is-open .lang { opacity: 1; pointer-events: auto; }
+    .lang button {
+      border: 0; background: transparent;
+      font: 500 0.72rem/1 "Cormorant Garamond", serif;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); padding: 0.5rem 0.72rem;
+      border-radius: 999px; cursor: pointer;
+    }
+    .lang button.is-on { background: var(--seal); color: #fff8f2; }
+
+    /* ENVELOPE */
+    .intro {
+      position: fixed; inset: 0; z-index: 100;
+      display: grid; place-items: center;
+      background: #ebe2d6;
+      transition: opacity 0.85s var(--ease), visibility 0.85s;
+    }
+    .intro.is-gone { opacity: 0; visibility: hidden; pointer-events: none; }
+    .envelope {
+      width: min(92vw, 360px);
+      aspect-ratio: 3 / 4;
+      position: relative;
+      animation: envelopeIn 1.15s var(--ease) both;
+      cursor: pointer;
+    }
+    .env-photo {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 30px 55px rgba(70, 50, 30, 0.32));
+      transition: transform 1.35s var(--ease), opacity 0.9s ease, filter 1.1s ease;
+      pointer-events: none; user-select: none;
+    }
+    .seal {
+      position: absolute;
+      left: 50%; top: 49.5%;
+      translate: -50% -50%;
+      z-index: 5;
+      width: min(32%, 6.4rem);
+      aspect-ratio: 1;
+      border: 0; padding: 0;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+      overflow: hidden;
+      mix-blend-mode: multiply;
+      /* no circular glow — that was the “круг” */
+      filter: drop-shadow(0 8px 14px rgba(60, 20, 18, 0.28));
+      transition: transform 0.45s var(--ease), opacity 0.55s ease, filter 0.45s;
+    }
+    .seal:hover { filter: drop-shadow(0 10px 16px rgba(60, 20, 18, 0.34)); }
+    .seal:hover img { transform: scale(1.1); }
+    .seal img {
+      width: 100%; height: 100%;
+      display: block; object-fit: cover;
+      pointer-events: none;
+      transform: scale(1.06);
+      transition: transform 0.35s var(--ease);
+    }
+    .hint-open {
+      position: absolute;
+      left: 50%; bottom: max(1.4rem, env(safe-area-inset-bottom));
+      translate: -50% 0;
+      font-size: 0.95rem; letter-spacing: 0.06em;
+      color: var(--bronze-deep);
+      animation: fadeBob 2.4s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .intro.is-opening .env-photo {
+      transform: scale(1.1) translateY(-8%) rotateX(-8deg);
+      opacity: 0;
+      filter: blur(10px);
+    }
+    .intro.is-opening .seal {
+      transform: scale(1.5);
+      opacity: 0;
+      animation: none;
+      pointer-events: none;
+    }
+    .intro.is-opening .hint-open { opacity: 0; }
+
+    /* MAIN */
+    .main {
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
+      transition: opacity 1s var(--ease) 0.1s, transform 1.15s var(--ease) 0.1s;
+      padding-bottom: 5.5rem;
+      pointer-events: none;
+    }
+    body.is-open .main { opacity: 1; transform: none; pointer-events: auto; }
+
+    /* Fall / 360 tunnel between sections */
+    .portal {
+      height: 4.5rem;
+      position: relative;
+      overflow: hidden;
+      pointer-events: none;
+      margin: 0.25rem 0;
+    }
+    .portal-ring {
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 2.2rem; height: 2.2rem;
+      translate: -50% -50%;
+      border-radius: 50%;
+      border: 1px solid rgba(154, 122, 82, 0.22);
+      box-shadow:
+        0 0 0 10px rgba(154, 122, 82, 0.06),
+        0 0 0 22px rgba(154, 122, 82, 0.04);
+      animation: portalPulse 2.8s ease-in-out infinite;
+    }
+    .portal-ring::before {
+      content: "";
+      position: absolute; inset: -120%;
+      background: conic-gradient(from 0deg, transparent 0 55%, rgba(107,42,46,.18), transparent 72%);
+      animation: spinPortal 3.6s linear infinite;
+      border-radius: 50%;
+    }
+
+    .fx {
+      opacity: 0;
+      transform: perspective(700px) rotateX(28deg) rotateY(-12deg) translateZ(-180px) scale(0.86);
+      filter: blur(10px) brightness(0.92);
+      transform-origin: 50% 40%;
+      will-change: transform, opacity, filter;
+    }
+    .fx.in {
+      animation: fallThrough 1.35s var(--ease) forwards;
+    }
+
+    /* fullscreen tunnel flash when section enters */
+    .tunnel {
+      position: fixed;
+      inset: 0;
+      z-index: 95;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 0%, rgba(40,28,22,.55) 55%, rgba(20,14,10,.85) 100%);
+      transform: scale(1.4);
+    }
+    .tunnel.flash {
+      animation: tunnelFlash 0.85s var(--ease) forwards;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100dvh;
+      padding: 3.5rem 1.1rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(247,240,231,.82) 0%, rgba(247,240,231,.55) 42%, rgba(232,224,210,.2) 70%, rgba(200,210,200,.35) 100%),
+        url("assets/swans-bg.jpg") center bottom / cover no-repeat;
+      animation: kenBurns 22s ease-in-out infinite alternate;
+      transform-origin: 50% 70%;
+    }
+    .arch-frame {
+      position: absolute;
+      inset: 0.55rem 0.5rem 0;
+      border: 1.5px solid rgba(154, 122, 82, 0.3);
+      border-bottom: 0;
+      border-radius: 50% 50% 0 0 / 28% 28% 0 0;
+      box-shadow: inset 0 0 0 6px rgba(255,250,243,.28);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .sparkles span {
+      position: absolute;
+      width: 6px; height: 10px;
+      border-radius: 60%;
+      background: linear-gradient(160deg, #fff, rgba(220,180,160,.4));
+      animation: fall 10s linear infinite;
+      opacity: 0.65;
+      z-index: 2;
+    }
+    .sparkles span:nth-child(1) { left: 10%; }
+    .sparkles span:nth-child(2) { left: 30%; animation-delay: 1.4s; animation-duration: 12s; }
+    .sparkles span:nth-child(3) { left: 52%; animation-delay: .7s; }
+    .sparkles span:nth-child(4) { left: 70%; animation-delay: 2s; animation-duration: 11s; }
+    .sparkles span:nth-child(5) { left: 88%; animation-delay: 2.8s; }
+
+    .hero-inner {
+      position: relative; z-index: 3;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+    .eyebrow {
+      font-family: "Marck Script", cursive;
+      font-size: 1.55rem;
+      color: var(--bronze);
+      opacity: 0;
+    }
+    body.is-open .eyebrow { animation: rise 0.9s var(--ease) 0.2s both; }
+    .date-sm {
+      margin-top: 0.2rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.22em;
+      color: var(--bronze-deep);
+      opacity: 0;
+    }
+    body.is-open .date-sm { animation: rise 0.9s var(--ease) 0.35s both; }
+    .names {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.55rem;
+      margin: 1.45rem 0 0.35rem;
+      opacity: 0;
+    }
+    body.is-open .names { animation: rise 1s var(--ease) 0.5s both; }
+    .names .n {
+      font-weight: 500;
+      font-size: clamp(1.5rem, 6.4vw, 1.95rem);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bronze-deep);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .names .amp {
+      font-family: "Marck Script", cursive;
+      font-size: clamp(1.5rem, 6vw, 1.9rem);
+      color: var(--bronze);
+      transform: translateY(0.06em);
+    }
+    .time-badge {
+      margin-top: 0.5rem;
+      font-size: 1.15rem;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      opacity: 0;
+    }
+    body.is-open .time-badge { animation: rise 0.9s var(--ease) 0.6s both; }
+    .invite {
+      margin-top: 1.25rem;
+      font-size: clamp(1.02rem, 3.8vw, 1.14rem);
+      line-height: 1.7;
+      max-width: 18.5rem;
+      white-space: pre-line;
+      opacity: 0;
+    }
+    body.is-open .invite { animation: rise 0.9s var(--ease) 0.75s both; }
+
+    .hero-bottom {
+      position: relative; z-index: 3;
+      width: 100%;
+      margin-top: auto;
+      padding-top: 1rem;
+    }
+    .scroll-hint {
+      font-family: "Marck Script", cursive;
+      font-size: 1.15rem;
+      color: rgba(110, 83, 54, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.1rem;
+      animation: bob 2.2s ease-in-out infinite;
+    }
+    .scroll-hint svg { width: 14px; height: 14px; }
+
+    .swan-layer {
+      height: 150px;
+      position: relative;
+      margin-top: 0.2rem;
+      overflow: hidden;
+    }
+    .water {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 58%;
+      background:
+        linear-gradient(180deg, transparent, rgba(160, 180, 175, 0.28) 40%, rgba(140, 165, 160, 0.35));
+    }
+    .ripple {
+      position: absolute;
+      left: 50%; bottom: 22px;
+      width: 120px; height: 18px;
+      translate: -50% 0;
+      border: 1px solid rgba(120,140,135,.25);
+      border-radius: 50%;
+      animation: ripples 3.2s ease-out infinite;
+    }
+    .ripple:nth-child(2) { animation-delay: 1.1s; width: 90px; }
+    .swan {
+      position: absolute;
+      bottom: 34px;
+      width: 78px;
+      filter: drop-shadow(0 4px 6px rgba(80,70,60,.12));
+    }
+    .swan-left {
+      left: calc(50% - 78px);
+      animation: swimLeft 5.5s ease-in-out infinite;
+    }
+    .swan-right {
+      left: calc(50% + 2px);
+      animation: swimRight 5.5s ease-in-out infinite;
+    }
+    .heart-spark {
+      position: absolute;
+      left: 50%;
+      bottom: 72px;
+      translate: -50% 0;
+      font-size: 0.7rem;
+      color: rgba(154, 122, 82, 0.55);
+      animation: heartFloat 3.8s ease-in-out infinite;
+    }
+
+    section.block {
+      padding: 3rem 1.4rem;
+      text-align: center;
+      position: relative;
+    }
+    .script {
+      font-family: "Marck Script", cursive;
+      font-size: clamp(2rem, 8vw, 2.45rem);
+      color: var(--bronze-deep);
+      margin-bottom: 0.9rem;
+    }
+    .lead {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 20rem;
+      margin: 0 auto 1.25rem;
+    }
+
+    /* COUNTDOWN — InviteStudio flat style (no card) */
+    .countdown-block {
+      background: #fcf9f5;
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .count-title {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(1.5rem, 5.8vw, 1.85rem);
+      font-weight: 500;
+      margin-bottom: 1.55rem;
+      color: #1f1a17;
+    }
+    .cd {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0.15rem;
+      margin-bottom: 1.25rem;
+      color: #6b2a2e;
+    }
+    .cd .u { min-width: 3.35rem; }
+    .cd .n {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(1.85rem, 7.5vw, 2.35rem);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    .cd .l {
+      margin-top: 0.5rem;
+      font-family: "Montserrat", system-ui, sans-serif;
+      font-size: 0.58rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6b2a2e;
+      opacity: 0.9;
+    }
+    .cd .colon {
+      font-size: 1.55rem;
+      font-weight: 600;
+      padding-top: 0.12rem;
+      opacity: 0.55;
+      color: #6b2a2e;
+    }
+    .count-sub {
+      font-family: "Montserrat", system-ui, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #3a3a3a;
+      margin-bottom: 1.6rem;
+    }
+    .rings {
+      width: 128px;
+      margin: 0 auto;
+      color: #6b2a2e;
+    }
+    .rings path, .rings ellipse, .rings rect {
+      stroke: currentColor;
+    }
+
+    /* LOCATION + HOUSE */
+    .venue-name {
+      font-size: clamp(1.2rem, 4.8vw, 1.4rem);
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.02em;
+    }
+    .venue-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 1.35rem;
+    }
+    .house-wrap {
+      position: relative;
+      max-width: 22rem;
+      margin: 0 auto 1.35rem;
+      padding: 0.25rem 0 0.75rem;
+      background: transparent;
+    }
+    .house-wrap .petal {
+      position: absolute;
+      width: 14px; height: 18px;
+      border-radius: 60%;
+      background: linear-gradient(160deg, #f3d0d4, rgba(232,180,186,.35));
+      filter: blur(0.4px);
+      animation: floatPetal 5.5s ease-in-out infinite;
+      opacity: 0.75;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .house-wrap .petal:nth-child(1) { top: 8%; left: 6%; }
+    .house-wrap .petal:nth-child(2) { top: 22%; right: 4%; animation-delay: 1s; }
+    .house-wrap .petal:nth-child(3) { top: 55%; left: 2%; animation-delay: 1.8s; }
+    .house-wrap .petal:nth-child(4) { bottom: 18%; right: 8%; animation-delay: .5s; }
+    .house-img {
+      width: 100%;
+      display: block;
+      border-radius: 0;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      /* blend white plate of the render into cream page */
+      mix-blend-mode: multiply;
+      opacity: 0;
+      transform: scale(0.94) translateY(18px);
+      transition: opacity 1.2s var(--ease), transform 1.3s var(--ease);
+    }
+    .fx.in .house-img {
+      opacity: 1;
+      transform: none;
+      animation: houseAlive 7s ease-in-out 1.1s infinite;
+    }
+    .map {
+      position: relative;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      border: 1px solid rgba(143,111,74,.18);
+      background: #f3ebe2;
+    }
+    .map iframe { width: 100%; height: 100%; border: 0; filter: saturate(.75) contrast(.94); }
+    .map-btn {
+      position: absolute; top: .75rem; left: .75rem; z-index: 2;
+      padding: .45rem .8rem; border-radius: 999px;
+      background: rgba(252,249,245,.96);
+      border: 1px solid rgba(143,111,74,.22);
+      color: var(--ink); text-decoration: none; font-size: .85rem;
+      box-shadow: none;
+    }
+
+    .note p {
+      max-width: 19rem;
+      margin: 0 auto 1.75rem;
+      font-size: 1.08rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .cta-register {
+      appearance: none;
+      border: 1px solid rgba(107, 42, 46, 0.35);
+      background: linear-gradient(180deg, #8a4540, var(--maroon));
+      color: #fff8f2;
+      font: 500 1.05rem/1 "Cormorant Garamond", serif;
+      letter-spacing: 0.06em;
+      padding: 0.95rem 1.6rem;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 14px 30px rgba(92, 39, 35, 0.25);
+      width: min(100%, 18rem);
+      transition: transform 0.2s ease;
+    }
+    .cta-register:active { transform: scale(0.98); }
+
+    /* MODAL */
+    .modal {
+      position: fixed; inset: 0; z-index: 120;
+      display: grid; place-items: end center;
+      background: rgba(40, 30, 24, 0.45);
+      backdrop-filter: blur(6px);
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s;
+    }
+    .modal.is-open { opacity: 1; visibility: visible; }
+    .modal-sheet {
+      position: relative;
+      width: min(100%, var(--max));
+      max-height: min(92dvh, 780px);
+      background: var(--cream);
+      border-radius: 1.4rem 1.4rem 0 0;
+      padding: 1.1rem 1.35rem calc(1.5rem + env(safe-area-inset-bottom));
+      overflow-y: auto;
+      transform: translateY(110%);
+      transition: transform 0.55s var(--ease);
+      text-align: center;
+      box-shadow: 0 -20px 60px rgba(0,0,0,.2);
+    }
+    .modal.is-open .modal-sheet { transform: translateY(0); }
+    .modal-grab {
+      width: 2.5rem; height: 4px; border-radius: 999px;
+      background: rgba(0,0,0,.12); margin: 0 auto 1rem;
+    }
+    .modal-close {
+      position: absolute; top: 0.85rem; right: 1rem;
+      border: 0; background: transparent;
+      font-size: 1.4rem; color: var(--muted); cursor: pointer;
+    }
+    .modal-form {
+      text-align: left; display: grid; gap: 0.95rem;
+      border-top: 1px solid rgba(0,0,0,.06);
+      padding-top: 1.25rem; margin-top: 0.5rem;
+    }
+    .field label { display: block; margin-bottom: 0.3rem; font-size: 0.98rem; }
+    .hint-field {
+      display: block; font-size: 0.8rem; font-style: italic;
+      color: var(--muted); margin: -0.1rem 0 0.3rem;
+      font-family: "Montserrat", system-ui, sans-serif;
+    }
+    .field input[type="text"], .field input[type="number"] {
+      width: 100%;
+      border: 1px solid rgba(122, 98, 68, 0.25);
+      background: #fff; border-radius: 0.4rem;
+      padding: 0.72rem 0.85rem; font: inherit; font-size: 1.05rem; outline: none;
+    }
+    .field input:focus {
+      border-color: var(--maroon);
+      box-shadow: 0 0 0 3px rgba(107, 42, 46, 0.12);
+    }
+    .radios { display: grid; gap: 0.45rem; }
+    .radio { display: flex; align-items: center; gap: 0.45rem; font-size: 1rem; cursor: pointer; }
+    .radio input { accent-color: var(--maroon); }
+    .submit {
+      border: 0; width: 100%; margin-top: 0.25rem;
+      padding: 0.95rem 1.2rem; border-radius: 999px;
+      background: linear-gradient(180deg, #8a4540, #5c2723);
+      color: #fff8f2;
+      font: 500 1.12rem/1 "Cormorant Garamond", serif;
+      letter-spacing: 0.08em; cursor: pointer;
+    }
+
+    .music {
+      position: fixed;
+      right: max(1rem, env(safe-area-inset-right));
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: 70;
+      width: 2.7rem; height: 2.7rem;
+      border: 0; border-radius: 50%;
+      background: var(--seal); color: #fff;
+      display: grid; place-items: center; cursor: pointer;
+      box-shadow: 0 10px 24px rgba(92, 39, 35, 0.3);
+      opacity: 0; pointer-events: none; transition: opacity 0.5s;
+    }
+    body.is-open .music { opacity: 1; pointer-events: auto; }
+    .music svg { width: 0.95rem; height: 0.95rem; }
+    .music .play { display: none; }
+    .music.is-off .pause { display: none; }
+    .music.is-off .play { display: block; }
+
+    @keyframes envelopeIn {
+      from { opacity: 0; transform: translateY(28px) scale(0.94); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes sealGlow {
+      0%, 100% { filter: drop-shadow(0 8px 14px rgba(60, 20, 18, 0.28)); }
+      50% { filter: drop-shadow(0 10px 16px rgba(60, 20, 18, 0.34)); }
+    }
+    @keyframes fadeBob {
+      0%, 100% { opacity: .45; transform: translate(-50%, 0); }
+      50% { opacity: .9; transform: translate(-50%, -4px); }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(5px); }
+    }
+    @keyframes swimLeft {
+      0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+      50% { transform: translate(14px, -7px) rotate(2deg); }
+    }
+    @keyframes swimRight {
+      0%, 100% { transform: translate(0, 0) rotate(2deg); }
+      50% { transform: translate(-14px, -6px) rotate(-2deg); }
+    }
+    @keyframes ripples {
+      0% { transform: translate(-50%, 0) scale(0.6); opacity: 0.45; }
+      100% { transform: translate(-50%, 0) scale(1.55); opacity: 0; }
+    }
+    @keyframes heartFloat {
+      0%, 100% { opacity: 0.35; transform: translate(-50%, 0); }
+      50% { opacity: 0.8; transform: translate(-50%, -8px); }
+    }
+    @keyframes fall {
+      0% { transform: translateY(-8vh) rotate(0); opacity: 0; }
+      12% { opacity: .6; }
+      100% { transform: translateY(100vh) rotate(240deg); opacity: 0; }
+    }
+    @keyframes kenBurns {
+      from { transform: scale(1); }
+      to { transform: scale(1.08) translateY(-1.5%); }
+    }
+    @keyframes spinPortal { to { transform: rotate(360deg); } }
+    @keyframes portalPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.55; }
+      50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+    }
+    @keyframes fallThrough {
+      0% {
+        opacity: 0;
+        filter: blur(12px) brightness(0.85);
+        transform: perspective(700px) rotateX(32deg) rotateY(-16deg) translateZ(-220px) scale(0.82);
+      }
+      55% {
+        opacity: 1;
+        filter: blur(0) brightness(1);
+      }
+      100% {
+        opacity: 1;
+        filter: none;
+        transform: none;
+      }
+    }
+    @keyframes tunnelFlash {
+      0% { opacity: 0; transform: scale(1.6); }
+      35% { opacity: 0.7; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.55); }
+    }
+    @keyframes floatPetal {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-12px) rotate(16deg); }
+    }
+    @keyframes houseAlive {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1.02) translateY(-3px); }
+    }
+
+    @media (min-width: 500px) {
+      body { padding: 1.25rem 0; }
+      .shell {
+        border-radius: 1.4rem;
+        box-shadow: 0 30px 80px rgba(60,45,30,.22);
+        min-height: calc(100dvh - 2.5rem);
+      }
+      .lang { right: max(calc(50% - var(--max)/2 + .8rem), .8rem); }
+      .music { right: max(calc(50% - var(--max)/2 + 1rem), 1rem); }
+      .modal { place-items: center; padding: 1rem; }
+      .modal-sheet { border-radius: 1.2rem; max-height: min(88dvh, 720px); }
+    }
+  </style>
+</head>
+<body class="is-locked">
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="uz" class="is-on" aria-pressed="true">UZ</button>
+    <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+  </div>
+
+  <div class="intro" id="intro">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Open invitation">
+      <img class="env-photo" src="assets/envelope.jpg" alt="" draggable="false" />
+      <button type="button" class="seal" id="openBtn" aria-label="Open">
+        <img src="assets/seal.jpg" alt="S&amp;S" draggable="false" />
+      </button>
+    </div>
+    <p class="hint-open" data-i18n="tapHint">Pechatni bosing</p>
+  </div>
+
+  <div class="shell">
+    <main class="main">
+      <!-- 1 / HERO -->
+      <section class="hero" id="top">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="arch-frame" aria-hidden="true"></div>
+        <div class="sparkles" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="hero-inner">
+          <p class="eyebrow" data-i18n="weddingDay">Wedding Day</p>
+          <p class="date-sm">19.09.26</p>
+          <h1 class="names">
+            <span class="n">Сунатилла</span>
+            <span class="amp">&amp;</span>
+            <span class="n">Севара</span>
+          </h1>
+          <p class="time-badge">18:00</p>
+          <p class="invite" data-i18n="invite">Ассалому алайкум!
+Ҳурматли Азиз меҳмонимиз!
+Сизни азиз фарзандларимиз
+СУНАТИЛЛА &amp; СЕВАРА</p>
+        </div>
+
+        <div class="hero-bottom">
+          <div class="scroll-hint">
+            <span data-i18n="scrollDown">Pastga</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="swan-layer" aria-hidden="true">
+            <div class="water"></div>
+            <div class="ripple"></div>
+            <div class="ripple"></div>
+            <span class="heart-spark">♥</span>
+            <svg class="swan swan-left" viewBox="0 0 90 70" fill="none">
+              <path d="M72 42c-10 2-22-2-28-12-4-6 0-14 8-16 6-1 12 3 18 10 2-12 8-20 18-24 1 8-2 18-8 26-1 6-4 12-8 16z" fill="#f7f4ef" stroke="#c9b8a4" stroke-width=".7"/>
+              <circle cx="28" cy="20" r="1.8" fill="#4a3f36"/>
+              <path d="M24 18l-6-1" stroke="#c4a070" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <svg class="swan swan-right" viewBox="0 0 90 70" fill="none">
+              <path d="M18 42c10 2 22-2 28-12 4-6 0-14-8-16-6-1-12 3-18 10-2-12-8-20-18-24-1 8 2 18 8 26 1 6 4 12 8 16z" fill="#f7f4ef" stroke="#c9b8a4" stroke-width=".7"/>
+              <circle cx="62" cy="20" r="1.8" fill="#4a3f36"/>
+              <path d="M66 18l6-1" stroke="#c4a070" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <div class="portal" aria-hidden="true"><div class="portal-ring"></div></div>
+
+      <!-- 2 / COUNTDOWN InviteStudio style -->
+      <section class="block countdown-block fx" id="countdown">
+        <h2 class="count-title" data-i18n="countTitle">Har lahzani sanayapmiz</h2>
+        <div class="cd" aria-live="polite">
+          <div class="u"><div class="n" id="d">00</div><div class="l" data-i18n="days">KUN</div></div>
+          <div class="colon">:</div>
+          <div class="u"><div class="n" id="h">00</div><div class="l" data-i18n="hours">SOAT</div></div>
+          <div class="colon">:</div>
+          <div class="u"><div class="n" id="m">00</div><div class="l" data-i18n="minutes">DAQIQA</div></div>
+          <div class="colon">:</div>
+          <div class="u"><div class="n" id="s">00</div><div class="l" data-i18n="seconds">SONIYA</div></div>
+        </div>
+        <p class="count-sub" data-i18n="countSub">Sizni intiqlik bilan kutamiz.</p>
+        <svg class="rings" viewBox="0 0 140 90" fill="none" aria-hidden="true">
+          <ellipse cx="52" cy="52" rx="28" ry="28" stroke="currentColor" stroke-width="3.4"/>
+          <ellipse cx="52" cy="52" rx="22" ry="22" stroke="currentColor" stroke-width="1.2" opacity=".35"/>
+          <ellipse cx="88" cy="52" rx="28" ry="28" stroke="currentColor" stroke-width="3.4"/>
+          <path d="M88 24l5-10 5 4-3 9" stroke="currentColor" stroke-width="2.4" fill="none"/>
+          <rect x="82" y="12" width="16" height="13" rx="2" stroke="currentColor" stroke-width="2.3"/>
+          <path d="M86 16h8M90 12v8" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M84 18l3 3 3-3M95 18l-3 3" stroke="currentColor" stroke-width="1" opacity=".5"/>
+        </svg>
+      </section>
+
+      <div class="portal" aria-hidden="true"><div class="portal-ring"></div></div>
+
+      <!-- 3 / LOCATION + animated house -->
+      <section class="block fx" id="location">
+        <h2 class="script" data-i18n="locationTitle">Manzil</h2>
+        <p class="venue-name" data-i18n="venueName">"Do'rmon bog'i" to'yxona</p>
+        <p class="venue-sub" data-i18n="venueAddr">Toshkent</p>
+
+        <div class="house-wrap">
+          <span class="petal"></span><span class="petal"></span>
+          <span class="petal"></span><span class="petal"></span>
+          <img class="house-img" src="assets/venue-blend.jpg" alt="Do'rmon bog'i" />
+        </div>
+
+        <div class="map">
+          <a class="map-btn" href="https://www.google.com/maps?q=41.366256,69.416147&ll=41.366256,69.416147&z=16" target="_blank" rel="noopener noreferrer">
+            <span data-i18n="openMaps">Xaritada ochish</span>
+          </a>
+          <iframe title="Map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=41.366256,69.416147&z=16&output=embed"></iframe>
+        </div>
+      </section>
+
+      <div class="portal" aria-hidden="true"><div class="portal-ring"></div></div>
+
+      <!-- 4 / NOTES -->
+      <section class="block note fx" id="notes">
+        <h2 class="script" data-i18n="dressTitle">Dress Code</h2>
+        <p data-i18n="dressText">Iltimos, chuqur qizil va bordo ranglardan voz keching — ular kelin-kuyov uchun.</p>
+        <h2 class="script" data-i18n="giftTitle">Sovg‘alar</h2>
+        <p data-i18n="giftText">Qadoqlangan sovg‘alarsiz. Eng yaxshi sovg‘a — sizning duoyingiz.</p>
+      </section>
+
+      <div class="portal" aria-hidden="true"><div class="portal-ring"></div></div>
+
+      <!-- 5 / REGISTER at end -->
+      <section class="block fx" id="register">
+        <h2 class="script" data-i18n="rsvpSectionTitle">Tasdiqlash</h2>
+        <p class="lead" data-i18n="rsvpSectionLead">Iltimos, kelishingizni oxirida tasdiqlang.</p>
+        <button type="button" class="cta-register" id="openModal" data-i18n="registerBtn">To‘yga yozilish</button>
+      </section>
+    </main>
+  </div>
+
+  <div class="tunnel" id="tunnel" aria-hidden="true"></div>
+
+  <div class="modal" id="rsvpModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-sheet">
+      <div class="modal-grab"></div>
+      <button type="button" class="modal-close" id="closeModal" aria-label="Close">×</button>
+      <h2 class="count-title" id="modalTitle" data-i18n="countTitle">Har lahzani sanayapmiz</h2>
+      <div class="cd" aria-live="polite">
+        <div class="u"><div class="n" id="md">00</div><div class="l" data-i18n="days">KUN</div></div>
+        <div class="colon">:</div>
+        <div class="u"><div class="n" id="mh">00</div><div class="l" data-i18n="hours">SOAT</div></div>
+        <div class="colon">:</div>
+        <div class="u"><div class="n" id="mm">00</div><div class="l" data-i18n="minutes">DAQIQA</div></div>
+        <div class="colon">:</div>
+        <div class="u"><div class="n" id="ms">00</div><div class="l" data-i18n="seconds">SONIYA</div></div>
+      </div>
+      <p class="count-sub" data-i18n="countSub">Sizni intiqlik bilan kutamiz.</p>
+      <svg class="rings" viewBox="0 0 120 70" fill="none" aria-hidden="true">
+        <ellipse cx="48" cy="38" rx="22" ry="22" stroke="currentColor" stroke-width="3.2"/>
+        <ellipse cx="72" cy="38" rx="22" ry="22" stroke="currentColor" stroke-width="3.2"/>
+        <path d="M72 16l4-8 4 3-2 7" stroke="currentColor" stroke-width="2.2"/>
+        <rect x="68" y="8" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="2"/>
+      </svg>
+
+      <form class="modal-form" action="https://formsubmit.co/YOUR_EMAIL@example.com" method="POST">
+        <input type="hidden" name="_subject" value="RSVP — Сунатилла & Севара" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+        <div class="field">
+          <label for="name" data-i18n="labelName">Ismingiz</label>
+          <input id="name" name="name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label data-i18n="labelAttend">Kelasizmi?</label>
+          <div class="radios">
+            <label class="radio"><input type="radio" name="attendance" value="yes" required /><span data-i18n="attendYes">Ha, albatta</span></label>
+            <label class="radio"><input type="radio" name="attendance" value="no" /><span data-i18n="attendNo">Afsuski, yo‘q</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="guests" data-i18n="labelGuests">Mehmonlar soni</label>
+          <input id="guests" name="guests" type="number" min="1" max="20" value="1" />
+        </div>
+        <div class="field">
+          <label for="song" data-i18n="labelSong">Sevimli qo‘shiq</label>
+          <input id="song" name="song" type="text" />
+        </div>
+        <div class="field">
+          <label for="children" data-i18n="labelChildren">Bolalar</label>
+          <span class="hint-field" data-i18n="hintChildren">Ism va yosh</span>
+          <input id="children" name="children" type="text" />
+        </div>
+        <button class="submit" type="submit" data-i18n="submit">Yuborish</button>
+      </form>
+    </div>
+  </div>
+
+  <button class="music is-off" id="musicBtn" type="button" aria-label="Music">
+    <svg class="pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+    <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  <audio id="bgMusic" loop preload="none"><source src="music.mp3" type="audio/mpeg" /></audio>
+
+  <script>
+    const WEDDING_DATE = new Date("2026-09-19T18:00:00+05:00");
+
+    const i18n = {
+      uz: {
+        tapHint: "Pechatni bosing",
+        weddingDay: "Wedding Day",
+        invite: "Ассалому алайкум!\nҲурматли Азиз меҳмонимиз!\nСизни азиз фарзандларимиз\nСУНАТИЛЛА & СЕВАРА",
+        scrollDown: "Pastga",
+        countTitle: "Har lahzani sanayapmiz",
+        countSub: "Sizni intiqlik bilan kutamiz.",
+        days: "KUN", hours: "SOAT", minutes: "DAQIQA", seconds: "SONIYA",
+        locationTitle: "Manzil",
+        venueName: "\"Do'rmon bog'i\" to'yxona",
+        venueAddr: "Toshkent",
+        openMaps: "Xaritada ochish",
+        dressTitle: "Dress Code",
+        dressText: "Iltimos, chuqur qizil va bordo ranglardan voz keching — ular kelin-kuyov uchun.",
+        giftTitle: "Sovg‘alar",
+        giftText: "Qadoqlangan sovg‘alarsiz. Eng yaxshi sovg‘a — sizning duoyingiz.",
+        rsvpSectionTitle: "Tasdiqlash",
+        rsvpSectionLead: "Iltimos, kelishingizni oxirida tasdiqlang.",
+        registerBtn: "To‘yga yozilish",
+        labelName: "Ismingiz",
+        labelAttend: "Kelasizmi?",
+        attendYes: "Ha, albatta",
+        attendNo: "Afsuski, yo‘q",
+        labelGuests: "Mehmonlar soni",
+        labelSong: "Sevimli qo‘shiq",
+        labelChildren: "Bolalar",
+        hintChildren: "Ism va yosh",
+        submit: "Yuborish",
+      },
+      ru: {
+        tapHint: "Нажмите на печать",
+        weddingDay: "День свадьбы",
+        invite: "Ассаламу алейкум!\nУважаемый дорогой гость!\nПриглашаем Вас на торжество наших любимых детей\nСУНАТИЛЛА & СЕВАРА",
+        scrollDown: "Ниже",
+        countTitle: "Считаем каждое мгновение",
+        countSub: "С нетерпением ждём вас.",
+        days: "ДНИ", hours: "ЧАСЫ", minutes: "МИНУТЫ", seconds: "СЕКУНДЫ",
+        locationTitle: "Локация",
+        venueName: "\"Do'rmon bog'i\" to'yxona",
+        venueAddr: "Ташкент",
+        openMaps: "Открыть в картах",
+        dressTitle: "Дресс-код",
+        dressText: "Просим не надевать глубокий красный и бордовый — эти цвета для молодожёнов.",
+        giftTitle: "Подарки",
+        giftText: "Без коробочных подарков. Лучший подарок — ваши дуа.",
+        rsvpSectionTitle: "Подтверждение",
+        rsvpSectionLead: "В конце подтвердите присутствие.",
+        registerBtn: "Записаться на свадьбу",
+        labelName: "Ваше имя",
+        labelAttend: "Вы будете?",
+        attendYes: "Да, с радостью",
+        attendNo: "К сожалению, нет",
+        labelGuests: "Количество гостей",
+        labelSong: "Любимая песня",
+        labelChildren: "Дети",
+        hintChildren: "Имя и возраст",
+        submit: "Отправить",
+      },
+    };
+
+    let lang = localStorage.getItem("invite-lang") || "uz";
+    function applyLang(next) {
+      lang = next;
+      localStorage.setItem("invite-lang", lang);
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (i18n[lang][key] != null) el.textContent = i18n[lang][key];
+      });
+      document.querySelectorAll(".lang button").forEach((btn) => {
+        const on = btn.dataset.lang === lang;
+        btn.classList.toggle("is-on", on);
+        btn.setAttribute("aria-pressed", String(on));
+      });
+    }
+    document.querySelectorAll(".lang button").forEach((btn) => {
+      btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+    });
+    applyLang(lang);
+
+    const intro = document.getElementById("intro");
+    function openInvite() {
+      if (intro.classList.contains("is-opening")) return;
+      intro.classList.add("is-opening");
+      setTimeout(() => {
+        intro.classList.add("is-gone");
+        document.body.classList.remove("is-locked");
+        document.body.classList.add("is-open");
+      }, 1300);
+    }
+    document.getElementById("openBtn").addEventListener("click", openInvite);
+    document.getElementById("envelope").addEventListener("click", openInvite);
+
+    const modal = document.getElementById("rsvpModal");
+    function openModal() {
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+    }
+    function closeModal() {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modal-open");
+    }
+    document.getElementById("openModal").addEventListener("click", openModal);
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function tick() {
+      let diff = Math.max(0, WEDDING_DATE - Date.now());
+      const days = Math.floor(diff / 86400000); diff -= days * 86400000;
+      const hours = Math.floor(diff / 3600000); diff -= hours * 3600000;
+      const mins = Math.floor(diff / 60000); diff -= mins * 60000;
+      const secs = Math.floor(diff / 1000);
+      ["d","h","m","s","md","mh","mm","ms"].forEach((id, i) => {
+        const vals = [days, hours, mins, secs, days, hours, mins, secs];
+        const el = document.getElementById(id);
+        if (el) el.textContent = pad(vals[i]);
+      });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    const tunnel = document.getElementById("tunnel");
+    let tunnelBusy = false;
+    function flashTunnel() {
+      if (tunnelBusy) return;
+      tunnelBusy = true;
+      tunnel.classList.remove("flash");
+      void tunnel.offsetWidth;
+      tunnel.classList.add("flash");
+      setTimeout(() => { tunnelBusy = false; }, 900);
+    }
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          flashTunnel();
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.22, rootMargin: "0px 0px -10% 0px" });
+    document.querySelectorAll(".fx").forEach((el) => io.observe(el));
+
+    const music = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+    musicBtn.addEventListener("click", async () => {
+      try {
+        if (music.paused) { await music.play(); musicBtn.classList.remove("is-off"); }
+        else { music.pause(); musicBtn.classList.add("is-off"); }
+      } catch (_) {
+        alert(lang === "ru" ? "Добавьте music.mp3" : "music.mp3 qo‘shing");
+      }
+    });
+  </script>
+</body>
+</html>

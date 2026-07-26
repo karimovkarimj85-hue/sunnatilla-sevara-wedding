@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Large source assets (keep optimized jpg)
+assets/*.png
+assets/seal-clean.png
+
+# Local only
+music.mp3
+.env
+*.log
