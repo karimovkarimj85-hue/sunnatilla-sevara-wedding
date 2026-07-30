@@ -622,6 +622,15 @@
       font: 500 1.12rem/1 "Cormorant Garamond", serif;
       letter-spacing: 0.08em; cursor: pointer;
     }
+    .submit:disabled { opacity: 0.65; cursor: wait; }
+    .form-status {
+      margin-top: 0.85rem;
+      font-size: 0.95rem;
+      text-align: center;
+      min-height: 1.3em;
+    }
+    .form-status.ok { color: #2f6b45; }
+    .form-status.err { color: #8a3030; }
 
     .music {
       position: fixed;
@@ -891,11 +900,7 @@
         <rect x="68" y="8" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="2"/>
       </svg>
 
-      <form class="modal-form" action="https://formsubmit.co/YOUR_EMAIL@example.com" method="POST">
-        <input type="hidden" name="_subject" value="RSVP — Сунатилла & Севара" />
-        <input type="hidden" name="_captcha" value="false" />
-        <input type="hidden" name="_template" value="table" />
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+      <form class="modal-form" id="rsvpForm">
         <div class="field">
           <label for="name" data-i18n="labelName">Ismingiz</label>
           <input id="name" name="name" type="text" required autocomplete="name" />
@@ -920,7 +925,8 @@
           <span class="hint-field" data-i18n="hintChildren">Ism va yosh</span>
           <input id="children" name="children" type="text" />
         </div>
-        <button class="submit" type="submit" data-i18n="submit">Yuborish</button>
+        <button class="submit" type="submit" id="rsvpSubmit" data-i18n="submit">Yuborish</button>
+        <p class="form-status" id="formStatus" aria-live="polite"></p>
       </form>
     </div>
   </div>
@@ -933,6 +939,13 @@
 
   <script>
     const WEDDING_DATE = new Date("2026-09-19T18:00:00+05:00");
+
+    // === Telegram: вставьте свои данные ===
+    // 1) @BotFather → /newbot → скопируйте токен
+    // 2) Добавьте бота админом в канал
+    // 3) chat_id канала (например -1001234567890)
+    const TG_BOT_TOKEN = "PASTE_BOT_TOKEN_HERE";
+    const TG_CHAT_ID = "PASTE_CHAT_ID_HERE";
 
     const i18n = {
       uz: {
@@ -959,6 +972,10 @@
         labelChildren: "Bolalar",
         hintChildren: "Ism va yosh",
         submit: "Yuborish",
+        sending: "Yuborilmoqda…",
+        sendOk: "Rahmat! Javobingiz qabul qilindi.",
+        sendErr: "Xatolik. Qayta urinib ko‘ring.",
+        sendCfg: "Telegram hali sozlanmagan (bot token / chat id).",
       },
       ru: {
         tapHint: "Нажмите на печать",
@@ -984,6 +1001,10 @@
         labelChildren: "Дети",
         hintChildren: "Имя и возраст",
         submit: "Отправить",
+        sending: "Отправляем…",
+        sendOk: "Спасибо! Ваш ответ получен.",
+        sendErr: "Ошибка. Попробуйте ещё раз.",
+        sendCfg: "Telegram ещё не настроен (bot token / chat id).",
       },
     };
 
@@ -1082,6 +1103,68 @@
         else { music.pause(); musicBtn.classList.add("is-off"); }
       } catch (_) {
         alert(lang === "ru" ? "Добавьте music.mp3" : "music.mp3 qo‘shing");
+      }
+    });
+
+    const rsvpForm = document.getElementById("rsvpForm");
+    const formStatus = document.getElementById("formStatus");
+    const rsvpSubmit = document.getElementById("rsvpSubmit");
+
+    rsvpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formStatus.className = "form-status";
+      formStatus.textContent = "";
+
+      if (!TG_BOT_TOKEN || TG_BOT_TOKEN.includes("PASTE_") || !TG_CHAT_ID || TG_CHAT_ID.includes("PASTE_")) {
+        formStatus.classList.add("err");
+        formStatus.textContent = i18n[lang].sendCfg;
+        return;
+      }
+
+      const fd = new FormData(rsvpForm);
+      const name = String(fd.get("name") || "").trim();
+      const attendance = fd.get("attendance") === "yes"
+        ? (lang === "ru" ? "Да" : "Ha")
+        : (lang === "ru" ? "Нет" : "Yo‘q");
+      const guests = fd.get("guests") || "1";
+      const song = String(fd.get("song") || "—").trim() || "—";
+      const children = String(fd.get("children") || "—").trim() || "—";
+
+      const text =
+        "💍 RSVP — Сунатилла & Севара\n\n" +
+        "👤 " + name + "\n" +
+        "✅ " + (lang === "ru" ? "Придёт: " : "Keladi: ") + attendance + "\n" +
+        "👥 " + (lang === "ru" ? "Гостей: " : "Mehmonlar: ") + guests + "\n" +
+        "🎵 " + (lang === "ru" ? "Песня: " : "Qo‘shiq: ") + song + "\n" +
+        "👶 " + (lang === "ru" ? "Дети: " : "Bolalar: ") + children + "\n" +
+        "🌐 " + lang.toUpperCase();
+
+      rsvpSubmit.disabled = true;
+      formStatus.textContent = i18n[lang].sending;
+
+      try {
+        const url = "https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage";
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: TG_CHAT_ID,
+            text,
+            disable_web_page_preview: true,
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.description || "tg error");
+
+        formStatus.classList.add("ok");
+        formStatus.textContent = i18n[lang].sendOk;
+        rsvpForm.reset();
+        document.getElementById("guests").value = "1";
+      } catch (_) {
+        formStatus.classList.add("err");
+        formStatus.textContent = i18n[lang].sendErr;
+      } finally {
+        rsvpSubmit.disabled = false;
       }
     });
   </script>
