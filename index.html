@@ -935,7 +935,9 @@
     <svg class="pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
     <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
   </button>
-  <audio id="bgMusic" loop preload="none"><source src="music.mp3" type="audio/mpeg" /></audio>
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music.m4a" type="audio/mp4" />
+  </audio>
 
   <script>
     const WEDDING_DATE = new Date("2026-09-19T18:00:00+05:00");
@@ -1029,9 +1031,15 @@
     applyLang(lang);
 
     const intro = document.getElementById("intro");
+    const music = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+
     function openInvite() {
       if (intro.classList.contains("is-opening")) return;
       intro.classList.add("is-opening");
+      music.play().then(() => {
+        musicBtn.classList.remove("is-off");
+      }).catch(() => {});
       setTimeout(() => {
         intro.classList.add("is-gone");
         document.body.classList.remove("is-locked");
@@ -1095,14 +1103,12 @@
     }, { threshold: 0.22, rootMargin: "0px 0px -10% 0px" });
     document.querySelectorAll(".fx").forEach((el) => io.observe(el));
 
-    const music = document.getElementById("bgMusic");
-    const musicBtn = document.getElementById("musicBtn");
     musicBtn.addEventListener("click", async () => {
       try {
         if (music.paused) { await music.play(); musicBtn.classList.remove("is-off"); }
         else { music.pause(); musicBtn.classList.add("is-off"); }
       } catch (_) {
-        alert(lang === "ru" ? "Добавьте music.mp3" : "music.mp3 qo‘shing");
+        alert(lang === "ru" ? "Не удалось включить музыку" : "Musiqani yoqib bo‘lmadi");
       }
     });
 

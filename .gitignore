@@ -11,6 +11,5 @@ assets/*.png
 assets/seal-clean.png
 
 # Local only
-music.mp3
 .env
 *.log
