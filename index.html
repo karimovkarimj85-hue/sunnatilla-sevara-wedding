@@ -936,7 +936,8 @@
     <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
   </button>
   <audio id="bgMusic" loop preload="auto">
-    <source src="music.m4a" type="audio/mp4" />
+    <source src="music.mp3?v=2" type="audio/mpeg" />
+    <source src="music.m4a?v=2" type="audio/mp4" />
   </audio>
 
   <script>
@@ -1037,9 +1038,17 @@
     function openInvite() {
       if (intro.classList.contains("is-opening")) return;
       intro.classList.add("is-opening");
-      music.play().then(() => {
-        musicBtn.classList.remove("is-off");
-      }).catch(() => {});
+      const startMusic = () => {
+        music.muted = false;
+        music.volume = 0.85;
+        return music.play().then(() => {
+          musicBtn.classList.remove("is-off");
+        });
+      };
+      startMusic().catch(() => {
+        // retry once after short delay (mobile browsers)
+        setTimeout(() => { startMusic().catch(() => {}); }, 250);
+      });
       setTimeout(() => {
         intro.classList.add("is-gone");
         document.body.classList.remove("is-locked");
@@ -1105,10 +1114,20 @@
 
     musicBtn.addEventListener("click", async () => {
       try {
-        if (music.paused) { await music.play(); musicBtn.classList.remove("is-off"); }
-        else { music.pause(); musicBtn.classList.add("is-off"); }
-      } catch (_) {
-        alert(lang === "ru" ? "Не удалось включить музыку" : "Musiqani yoqib bo‘lmadi");
+        music.muted = false;
+        music.volume = 0.85;
+        if (music.paused) {
+          await music.play();
+          musicBtn.classList.remove("is-off");
+        } else {
+          music.pause();
+          musicBtn.classList.add("is-off");
+        }
+      } catch (err) {
+        console.error(err);
+        alert(lang === "ru"
+          ? "Музыка не загрузилась. Обновите страницу (Ctrl+F5)."
+          : "Musiqa yuklanmadi. Sahifani yangilang (Ctrl+F5).");
       }
     });
 
