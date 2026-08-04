@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#efe6da" />
-  <meta name="description" content="Сунатилла & Севара — свадебное приглашение" />
-  <title>Сунатилла & Севара</title>
+  <meta name="description" content="Суннатилла & Севара — свадебное приглашение" />
+  <title>Суннатилла & Севара</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Marck+Script&family=Montserrat:wght@400;500&display=swap" rel="stylesheet" />
@@ -774,7 +774,7 @@
           <p class="eyebrow" data-i18n="weddingDay">Wedding Day</p>
           <p class="date-sm">19.09.26</p>
           <h1 class="names">
-            <span class="n">Сунатилла</span>
+            <span class="n">Суннатилла</span>
             <span class="amp">&amp;</span>
             <span class="n">Севара</span>
           </h1>
@@ -783,13 +783,13 @@
 Ҳурматли ва азиз меҳмонимиз!
 
 Сизни азиз фарзандларимиз
-СУНАТИЛЛА &amp; СЕВАРА
+СУННАТИЛЛА &amp; СЕВАРА
 нинг никоҳ тўйи шарафи муносабати билан
 2026-йил 19-сентябрь куни
 бўлиб ўтадиган «ВИСОЛ ОҚШОМИ»га
 лутфан таклиф этамиз!
 Хурмат ва эхтиром ила
-Жавлиевлар хонодони</p>
+Жавлиевлар хонадони</p>
         </div>
 
         <div class="hero-bottom">
@@ -936,8 +936,8 @@
     <svg class="play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
   </button>
   <audio id="bgMusic" loop preload="auto">
-    <source src="music.mp3?v=2" type="audio/mpeg" />
-    <source src="music.m4a?v=2" type="audio/mp4" />
+    <source src="music.mp3?v=3" type="audio/mpeg" />
+    <source src="music.m4a?v=3" type="audio/mp4" />
   </audio>
 
   <script>
@@ -954,7 +954,7 @@
       uz: {
         tapHint: "Pechatni bosing",
         weddingDay: "Wedding Day",
-        invite: "Ассалому алайкум!\nҲурматли ва азиз меҳмонимиз!\n\nСизни азиз фарзандларимиз\nСУНАТИЛЛА & СЕВАРА\nнинг никоҳ тўйи шарафи муносабати билан\n2026-йил 19-сентябрь куни\nбўлиб ўтадиган «ВИСОЛ ОҚШОМИ»га\nлутфан таклиф этамиз!\nХурмат ва эхтиром ила\nЖавлиевлар хонодони",
+        invite: "Ассалому алайкум!\nҲурматли ва азиз меҳмонимиз!\n\nСизни азиз фарзандларимиз\nСУННАТИЛЛА & СЕВАРА\nнинг никоҳ тўйи шарафи муносабати билан\n2026-йил 19-сентябрь куни\nбўлиб ўтадиган «ВИСОЛ ОҚШОМИ»га\nлутфан таклиф этамиз!\nХурмат ва эхтиром ила\nЖавлиевлар хонадони",
         scrollDown: "Pastga",
         countTitle: "Har lahzani sanayapmiz",
         countSub: "Sizni intiqlik bilan kutamiz.",
@@ -983,7 +983,7 @@
       ru: {
         tapHint: "Нажмите на печать",
         weddingDay: "День свадьбы",
-        invite: "Ассаламу алейкум!\nУважаемый и дорогой гость!\n\nПриглашаем Вас на торжество наших любимых детей\nСУНАТИЛЛА & СЕВАРА\nпо случаю их никах-тоя\n19 сентября 2026 года\nна вечер «ВИСОЛ ОҚШОМИ»\nС уважением и почтением\nсемья Жавлиевых",
+        invite: "Ассаламу алейкум!\nУважаемый и дорогой гость!\n\nПриглашаем Вас на торжество наших любимых детей\nСУННАТИЛЛА & СЕВАРА\nпо случаю их никах-тоя\n19 сентября 2026 года\nна вечер «ВИСОЛ ОҚШОМИ»\nС уважением и почтением\nсемья Жавлиевых",
         scrollDown: "Ниже",
         countTitle: "Считаем каждое мгновение",
         countSub: "С нетерпением ждём вас.",
@@ -1034,19 +1034,39 @@
     const intro = document.getElementById("intro");
     const music = document.getElementById("bgMusic");
     const musicBtn = document.getElementById("musicBtn");
+    const MUSIC_MAX = 0.85;
+    const FADE_MS = 7000;
+    let fadeTimer = null;
+
+    function fadeInMusic() {
+      if (fadeTimer) clearInterval(fadeTimer);
+      music.volume = 0;
+      const steps = 40;
+      const stepMs = FADE_MS / steps;
+      let i = 0;
+      fadeTimer = setInterval(() => {
+        i += 1;
+        music.volume = Math.min(MUSIC_MAX, (i / steps) * MUSIC_MAX);
+        if (i >= steps) {
+          clearInterval(fadeTimer);
+          fadeTimer = null;
+          music.volume = MUSIC_MAX;
+        }
+      }, stepMs);
+    }
 
     function openInvite() {
       if (intro.classList.contains("is-opening")) return;
       intro.classList.add("is-opening");
       const startMusic = () => {
         music.muted = false;
-        music.volume = 0.85;
+        music.volume = 0;
         return music.play().then(() => {
           musicBtn.classList.remove("is-off");
+          fadeInMusic();
         });
       };
       startMusic().catch(() => {
-        // retry once after short delay (mobile browsers)
         setTimeout(() => { startMusic().catch(() => {}); }, 250);
       });
       setTimeout(() => {
@@ -1115,11 +1135,13 @@
     musicBtn.addEventListener("click", async () => {
       try {
         music.muted = false;
-        music.volume = 0.85;
         if (music.paused) {
+          music.volume = 0;
           await music.play();
           musicBtn.classList.remove("is-off");
+          fadeInMusic();
         } else {
+          if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
           music.pause();
           musicBtn.classList.add("is-off");
         }
@@ -1156,7 +1178,7 @@
       const children = String(fd.get("children") || "—").trim() || "—";
 
       const text =
-        "💍 RSVP — Сунатилла & Севара\n\n" +
+        "💍 RSVP — Суннатилла & Севара\n\n" +
         "👤 " + name + "\n" +
         "✅ " + (lang === "ru" ? "Придёт: " : "Keladi: ") + attendance + "\n" +
         "👥 " + (lang === "ru" ? "Гостей: " : "Mehmonlar: ") + guests + "\n" +
